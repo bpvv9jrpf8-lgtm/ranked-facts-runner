@@ -1,0 +1,74 @@
+name: Ranked Facts Generate
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '20 0,4,8,12,16,20 * * *'
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: ranked-facts-generate
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout public runner
+        uses: actions/checkout@v4
+
+      - name: Checkout private Ranked Facts source
+        uses: actions/checkout@v4
+        with:
+          repository: bpvv9jrpf8-lgtm/facebook-ai-automation
+          token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+          path: private-src
+          persist-credentials: false
+
+      - name: Validate generation secrets
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          IMGBB_API_KEY: ${{ secrets.IMGBB_API_KEY }}
+          PRIVATE_REPO_TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
+        run: |
+          set -euo pipefail
+          for name in OPENAI_API_KEY IMGBB_API_KEY PRIVATE_REPO_TOKEN; do
+            [ -n "${!name:-}" ] || { echo "$name missing"; exit 1; }
+          done
+
+      - name: Install renderer dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pillow requests
+          sudo apt-get update -y
+          sudo apt-get install -y fonts-dejavu-core
+
+      - name: Prepare public history
+        run: |
+          mkdir -p history
+          touch history/used-ranked-topics.txt history/ranked-source-log.txt
+          if [ ! -s history/used-ranked-topics.txt ] && [ -f private-src/used-photo-topics.txt ]; then cp private-src/used-photo-topics.txt history/used-ranked-topics.txt; fi
+          if [ ! -s history/ranked-source-log.txt ] && [ -f private-src/photo-source-log.txt ]; then cp private-src/photo-source-log.txt history/ranked-source-log.txt; fi
+
+      - name: Generate one shared Ranked Facts package
+        env:
+          RUNNER_ROOT: ${{ github.workspace }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          IMGBB_API_KEY: ${{ secrets.IMGBB_API_KEY }}
+        run: python private-src/scripts/public_runner_ranked.py
+
+      - name: Save shared package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ranked-facts-package-${{ github.run_id }}
+          path: |
+            ranked-package/package.json
+            ranked-package/publish.json
+            ranked-package/rendered/ranked-facts-1.png
+            ranked-package/rendered/rendered.json
+          if-no-files-found: error
+          retention-days: 7
