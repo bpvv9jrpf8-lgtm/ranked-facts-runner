@@ -1,0 +1,68 @@
+name: Ranked Facts Reel Publish Only
+
+on:
+  workflow_run:
+    workflows: ['Ranked Facts Reel Build From Photo']
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: 'Successful reel-build run ID to reuse'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: ranked-facts-reel-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: bpvv9jrpf8-lgtm/facebook-ai-automation
+          token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+          path: private-src
+          persist-credentials: false
+      - name: Resolve source reel run
+        id: source
+        env:
+          AUTO_RUN_ID: ${{ github.event.workflow_run.id }}
+          MANUAL_RUN_ID: ${{ inputs.source_run_id }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = 'workflow_run' ]; then RUN_ID="$AUTO_RUN_ID"; else RUN_ID="$MANUAL_RUN_ID"; fi
+          [ -n "$RUN_ID" ] || exit 1
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+      - name: Download saved reel artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ranked-facts-reel-${{ steps.source.outputs.run_id }}
+          path: ranked-reel
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ steps.source.outputs.run_id }}
+      - name: Publish saved reel
+        env:
+          RUNNER_ROOT: ${{ github.workspace }}
+          BUFFER_API_TOKEN: ${{ secrets.BUFFER_API_TOKEN }}
+          BUFFER_CHANNEL_ID: ${{ secrets.BUFFER_CHANNEL_ID }}
+        run: python private-src/scripts/public_publish_ranked_reel.py
+      - name: Save successful reel history
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add history/
+          if ! git diff --cached --quiet; then
+            git commit -m 'Update Ranked Facts reel history'
+            git pull --rebase origin "$GITHUB_REF_NAME"
+            git push origin HEAD:"$GITHUB_REF_NAME"
+          fi
