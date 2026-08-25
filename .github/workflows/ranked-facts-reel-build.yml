@@ -1,0 +1,72 @@
+name: Ranked Facts Reel Build From Photo
+
+on:
+  workflow_run:
+    workflows: ['Ranked Facts Generate']
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: 'Successful generation run ID to reuse'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: ranked-facts-reel-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: bpvv9jrpf8-lgtm/facebook-ai-automation
+          token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+          path: private-src
+          persist-credentials: false
+      - name: Resolve source run
+        id: source
+        env:
+          AUTO_RUN_ID: ${{ github.event.workflow_run.id }}
+          MANUAL_RUN_ID: ${{ inputs.source_run_id }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = 'workflow_run' ]; then RUN_ID="$AUTO_RUN_ID"; else RUN_ID="$MANUAL_RUN_ID"; fi
+          [ -n "$RUN_ID" ] || exit 1
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+      - name: Download saved shared package
+        uses: actions/download-artifact@v4
+        with:
+          name: ranked-facts-package-${{ steps.source.outputs.run_id }}
+          path: ranked-package
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ steps.source.outputs.run_id }}
+      - name: Install free reel tools
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --upgrade pip
+          pip install cloudinary
+      - name: Build reel from exact saved photo package
+        env:
+          RUNNER_ROOT: ${{ github.workspace }}
+          CLOUDINARY_URL: ${{ secrets.CLOUDINARY_URL }}
+        run: python private-src/scripts/public_build_ranked_reel.py
+      - name: Save reel artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ranked-facts-reel-${{ github.run_id }}
+          path: |
+            ranked-reel/publish.json
+            ranked-reel/ranked-facts-reel.mp4
+          if-no-files-found: error
+          retention-days: 7
