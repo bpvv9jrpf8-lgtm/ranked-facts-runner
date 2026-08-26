@@ -4,3 +4,4 @@ Global container port throughput
 Largest companies by revenue
 Renewable power capacity by country
 Crude steel production by country
+Global patent applications by applicant origin
