@@ -4,3 +4,4 @@ Global container port throughput
 Largest companies by revenue
 Largest companies by revenue
 Renewable power capacity by country
+Installed geothermal power capacity by country
