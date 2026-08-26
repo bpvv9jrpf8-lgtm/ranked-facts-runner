@@ -5,3 +5,4 @@ Largest companies by revenue
 Largest companies by revenue
 Renewable power capacity by country
 Installed geothermal power capacity by country
+Crude steel production by country
