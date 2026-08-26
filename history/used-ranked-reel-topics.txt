@@ -7,3 +7,4 @@ Renewable power capacity by country
 Installed geothermal power capacity by country
 Crude steel production by country
 Global patent applications by applicant origin
+International tourist arrivals by country
