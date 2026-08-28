@@ -7,3 +7,4 @@ Crude steel production by country
 Global patent applications by applicant origin
 International tourist arrivals by country
 Global data center markets by installed IT capacity
+Coffee production by country
