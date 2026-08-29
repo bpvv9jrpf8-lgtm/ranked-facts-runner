@@ -10,3 +10,4 @@ Global data center markets by installed IT capacity
 Coffee production by country
 Electric car sales share by country
 Global smartphone vendors by shipment share
+Global automaker sales
