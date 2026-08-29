@@ -13,3 +13,4 @@ Coffee production by country
 Electricity generation by country
 Electric car sales share by country
 Global smartphone vendors by shipment share
+Global automaker sales
