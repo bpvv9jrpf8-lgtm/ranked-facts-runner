@@ -15,3 +15,4 @@ Merchandise exports by economy
 UNESCO World Heritage Sites by Country
 Longest metro networks worldwide
 Operating nuclear power capacity by country
+Total electricity generation by country
