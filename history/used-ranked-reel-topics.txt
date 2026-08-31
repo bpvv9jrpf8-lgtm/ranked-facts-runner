@@ -24,3 +24,4 @@ Measured and indicated lithium resources by country
 Total electricity generation by country
 High-speed rail network length by country
 Natural Gas Production
+Installed wind power capacity by country
