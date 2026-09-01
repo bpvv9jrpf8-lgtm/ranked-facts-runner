@@ -17,3 +17,4 @@ Longest metro networks worldwide
 Operating nuclear power capacity by country
 Total electricity generation by country
 Natural Gas Production
+Lithium mine production by country
