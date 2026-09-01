@@ -25,3 +25,4 @@ Total electricity generation by country
 High-speed rail network length by country
 Natural Gas Production
 Installed wind power capacity by country
+Lithium mine production by country
