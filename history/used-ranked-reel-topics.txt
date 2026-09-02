@@ -32,3 +32,4 @@ Wine production by country
 Global brand value
 Semiconductor vendors by revenue
 Forest area by country
+Wind power capacity by country
