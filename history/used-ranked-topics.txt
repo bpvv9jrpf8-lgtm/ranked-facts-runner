@@ -25,3 +25,4 @@ Global brand value
 Forest area by country
 Wind power capacity by country
 Longest suspension bridge spans worldwide
+UNESCO Global Geoparks by Country
