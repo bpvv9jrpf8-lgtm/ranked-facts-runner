@@ -42,3 +42,4 @@ Global air cargo airports
 Geothermal power capacity by country
 Renewable hydropower capacity by country
 Global EV battery suppliers in 2025
+Global hotel groups by room count
