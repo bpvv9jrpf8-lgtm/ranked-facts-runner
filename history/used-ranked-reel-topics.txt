@@ -37,3 +37,4 @@ Longest suspension bridge spans worldwide
 UNESCO Global Geoparks by Country
 Proven crude oil reserves by country
 Industrial robot density by country
+Cumulative solar photovoltaic capacity by country
