@@ -29,3 +29,4 @@ UNESCO Global Geoparks by Country
 Proven crude oil reserves by country
 Cumulative solar photovoltaic capacity by country
 Global air cargo airports
+Geothermal power capacity by country
