@@ -44,3 +44,4 @@ Renewable hydropower capacity by country
 Global EV battery suppliers in 2025
 Global hotel groups by room count
 GNI per capita at purchasing power parity
+TOP500 supercomputer installations by country
